@@ -3,7 +3,10 @@
 //
 
 #include "Manager.h"
+#include "Pools/UsersPool.h"
 
 void Manager::bootstrap() {
+    UsersPool usersPool;
 
+    usersPool.generateUsers();
 }
