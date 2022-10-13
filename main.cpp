@@ -1,6 +1,9 @@
-#include <iostream>
+#include "Manager.h"
 
 int main() {
-    std::cout << "Hello, World!" << std::endl;
+    Manager manager;
+
+    manager.bootstrap();
+
     return 0;
 }
