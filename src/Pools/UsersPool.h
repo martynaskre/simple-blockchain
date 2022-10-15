@@ -14,6 +14,8 @@ class UsersPool {
 
 public:
     void generateUsers();
+    std::optional<User> getUser(const std::string& publicKey);
+    User getRandomUser();
 };
 
 

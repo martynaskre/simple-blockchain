@@ -6,7 +6,12 @@
 #define SIMPLE_BLOCKCHAIN_MANAGER_H
 
 
+#include "Pools/UsersPool.h"
+#include "Pools/TransactionsPool.h"
+
 class Manager {
+    UsersPool users;
+    TransactionsPool transactions;
 public:
     void bootstrap();
 };

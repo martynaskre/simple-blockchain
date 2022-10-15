@@ -3,10 +3,14 @@
 //
 
 #include "Manager.h"
-#include "Pools/UsersPool.h"
+#include <iostream>
+#include "Utils/Logger.h"
 
 void Manager::bootstrap() {
-    UsersPool usersPool;
+    Logger::setState(true);
 
-    usersPool.generateUsers();
+    users.generateUsers();
+    transactions.generateTransactions([this]() -> User {
+        return users.getRandomUser();
+    });
 }

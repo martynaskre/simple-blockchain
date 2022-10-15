@@ -14,7 +14,7 @@ void UsersPool::generateUsers() {
     int toGenerate = 1000;
 
     for (int i = 1; i <= toGenerate; i++) {
-        std::string name = "user";
+        std::string name = "User";
 
         name.append(std::to_string(i));
 
@@ -22,4 +22,20 @@ void UsersPool::generateUsers() {
 
         users.insert(std::make_pair(user.getPublicKey(), user));
     }
+}
+
+std::optional<User> UsersPool::getUser(const std::string& publicKey) {
+    try {
+        return users.at(publicKey);
+    } catch (const std::out_of_range& e) {
+        //
+    }
+
+    return std::nullopt;
+}
+
+User UsersPool::getRandomUser() {
+    NumberGenerator numberGenerator = {};
+
+    return std::next(std::begin(users), numberGenerator.setLength(0, users.size()).generate())->second;
 }

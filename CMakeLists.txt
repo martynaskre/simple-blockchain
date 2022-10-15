@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(Blockchain)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_BUILD_TYPE MATCHES Release)
     set(CMAKE_CXX_FLAGS "-O2")

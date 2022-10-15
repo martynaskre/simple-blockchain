@@ -10,7 +10,7 @@
 Transaction::Transaction(std::string sender, std::string receiver, unsigned int amount) {
     std::stringstream identifier;
 
-    identifier >> sender >> receiver >> amount;
+    identifier << sender << receiver << amount;
 
     this->id = hash(identifier.str());
     this->sender = std::move(sender);
