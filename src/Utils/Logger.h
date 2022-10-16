@@ -15,6 +15,7 @@ class Logger {
 public:
     static void setState(bool isEnabled);
     static void info(const std::string& message);
+    static void error(const std::string& message);
 };
 
 

@@ -74,8 +74,7 @@ unsigned int Hash::rotateLeft(int toRotate, int rotateBy) {
     return (toRotate << rotateBy) | (toRotate >> (32 - rotateBy));
 }
 
-std::string hash(std::string string)
-{
+std::string hash(std::string string) {
     Hash hash = Hash(std::move(string));
 
     return hash.make();

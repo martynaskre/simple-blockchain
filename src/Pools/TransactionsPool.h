@@ -11,11 +11,17 @@
 #include "User.h"
 
 class TransactionsPool {
-    std::unordered_map<std::string, Transaction> transactions;
+    typedef std::unordered_map<std::string, Transaction> transactionsMap;
+
+    transactionsMap transactions;
 public:
     void createTransaction(std::string sender, std::string receiver, unsigned int amount);
     void generateTransactions(const std::function<User()>& randomUser);
     std::optional<Transaction> getTransaction(const std::string& id);
+    std::pair<transactionsMap::iterator, transactionsMap::iterator> getRange(int from, int to);
+    bool isEmpty();
+    transactionsMap::iterator erase(transactionsMap::iterator from, transactionsMap::iterator to);
+    transactionsMap::size_type size();
 };
 
 

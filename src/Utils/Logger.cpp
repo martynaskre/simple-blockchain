@@ -23,3 +23,11 @@ void Logger::info(const std::string& message) {
 
     std::cout << Color::MAGENTA << "[INFO] " << Color::RESET << message << std::endl;
 }
+
+void Logger::error(const std::string &message) {
+    if (!canBeLogged()) {
+        return;
+    }
+
+    std::cout << Color::RED << "[ERROR] " << Color::RESET << message << std::endl;
+}

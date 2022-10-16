@@ -10,7 +10,13 @@
 #include "Utils/Logger.h"
 
 void TransactionsPool::createTransaction(std::string sender, std::string receiver, unsigned int amount) {
-    Transaction transaction = Transaction(std::move(sender), std::move(receiver), amount);
+    Transaction transaction = Transaction(std::move(sender), std::move(receiver), std::time(nullptr), amount);
+
+    if (transactions.contains(transaction.getId())) {
+        Logger::error("Integrity fault, transaction with same ID already exists " + transaction.getId());
+
+        return;
+    }
 
     transactions.insert(std::make_pair(transaction.getId(), transaction));
 
@@ -23,7 +29,16 @@ void TransactionsPool::generateTransactions(const std::function<User()>& randomU
     int toGenerate = 10000;
 
     for (int i = 0; i < toGenerate; i++) {
-        createTransaction(randomUser().getPublicKey(), randomUser().getPublicKey(), numberGenerator.setLength(1, 1000).generate());
+        User sender = randomUser();
+        User receiver = randomUser();
+
+        if (sender.getPublicKey() == receiver.getPublicKey()) {
+            while (sender.getPublicKey() == receiver.getPublicKey()) {
+                receiver = randomUser();
+            }
+        }
+
+        createTransaction(sender.getPublicKey(), receiver.getPublicKey(), numberGenerator.setLength(1, 1000).generate());
     }
 }
 
@@ -35,4 +50,27 @@ std::optional<Transaction> TransactionsPool::getTransaction(const std::string &i
     }
 
     return std::nullopt;
+}
+
+std::pair<TransactionsPool::transactionsMap::iterator, TransactionsPool::transactionsMap::iterator> TransactionsPool::getRange(int from, int to) {
+    std::pair<TransactionsPool::transactionsMap::iterator, TransactionsPool::transactionsMap::iterator> bounds;
+
+    bounds.first = std::next(std::begin(transactions), from);
+    bounds.second = std::next(std::begin(transactions), to);
+
+    return bounds;
+}
+
+bool TransactionsPool::isEmpty() {
+    return transactions.empty();
+}
+
+TransactionsPool::transactionsMap::iterator TransactionsPool::erase(
+        TransactionsPool::transactionsMap::iterator from,
+        TransactionsPool::transactionsMap::iterator to) {
+    return transactions.erase(from, to);
+}
+
+TransactionsPool::transactionsMap::size_type TransactionsPool::size() {
+    return transactions.size();
 }

@@ -12,10 +12,11 @@ class Transaction {
     std::string id;
     std::string sender;
     std::string receiver;
+    std::time_t timestamp;
     unsigned int amount;
 
 public:
-    Transaction(std::string sender, std::string receiver, unsigned int amount);
+    Transaction(std::string sender, std::string receiver, std::time_t timestamp, unsigned int amount);
     void changeAmount(unsigned int newAmount);
 
     std::string getId();

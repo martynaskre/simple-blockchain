@@ -7,14 +7,15 @@
 #include <utility>
 #include <sstream>
 
-Transaction::Transaction(std::string sender, std::string receiver, unsigned int amount) {
+Transaction::Transaction(std::string sender, std::string receiver, std::time_t timestamp, unsigned int amount) {
     std::stringstream identifier;
 
-    identifier << sender << receiver << amount;
+    identifier << sender << receiver << timestamp << amount;
 
     this->id = hash(identifier.str());
     this->sender = std::move(sender);
     this->receiver = std::move(receiver);
+    this->timestamp = timestamp;
     this->amount = amount;
 }
 

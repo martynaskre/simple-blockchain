@@ -8,10 +8,15 @@
 
 #include "Pools/UsersPool.h"
 #include "Pools/TransactionsPool.h"
+#include "Block.h"
+#include <map>
 
 class Manager {
     UsersPool users;
     TransactionsPool transactions;
+    std::map<int, Block> blocks;
+
+    void initializeBlocks();
 public:
     void bootstrap();
 };
