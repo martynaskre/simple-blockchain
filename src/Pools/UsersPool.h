@@ -10,12 +10,17 @@
 #include "User.h"
 
 class UsersPool {
-    std::unordered_map<std::string, User> users;
+public:
+    typedef std::unordered_map<std::string, User> usersMap;
+
+private:
+    usersMap users;
 
 public:
     void generateUsers();
-    std::optional<User> getUser(const std::string& publicKey);
-    User getRandomUser();
+    std::optional<User*> getUser(const std::string& publicKey);
+    User* getRandomUser();
+    std::pair<usersMap::iterator, usersMap::iterator> getUsers();
 };
 
 

@@ -24,9 +24,9 @@ void UsersPool::generateUsers() {
     }
 }
 
-std::optional<User> UsersPool::getUser(const std::string& publicKey) {
+std::optional<User*> UsersPool::getUser(const std::string& publicKey) {
     try {
-        return users.at(publicKey);
+        return &users.at(publicKey);
     } catch (const std::out_of_range& e) {
         //
     }
@@ -34,8 +34,15 @@ std::optional<User> UsersPool::getUser(const std::string& publicKey) {
     return std::nullopt;
 }
 
-User UsersPool::getRandomUser() {
+User* UsersPool::getRandomUser() {
     NumberGenerator numberGenerator = {};
 
-    return std::next(std::begin(users), numberGenerator.setLength(0, users.size()).generate())->second;
+    return &std::next(std::begin(users), numberGenerator.setLength(0, users.size()).generate())->second;
+}
+
+std::pair<UsersPool::usersMap::iterator, UsersPool::usersMap::iterator> UsersPool::getUsers() {
+    return {
+        users.begin(),
+        users.end()
+    };
 }

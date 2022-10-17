@@ -17,6 +17,7 @@ class Manager {
     std::map<int, Block> blocks;
 
     void initializeBlocks();
+    void displayUserStatistics();
 public:
     void bootstrap();
 };
