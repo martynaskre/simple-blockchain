@@ -3,9 +3,28 @@
 //
 
 #include <iostream>
+#include <utility>
 #include "UsersPool.h"
 #include "Utils/StringGenerator.h"
 #include "Utils/NumberGenerator.h"
+#include <fstream>
+#include <Manager.h>
+
+UsersPool::UsersPool() {
+    if (!Manager::runningInDebug()) {
+        for (const auto & entry : std::filesystem::directory_iterator("users")) {
+            auto user = User::fromFile(entry.path());
+
+            users.insert(std::make_pair(user.getPublicKey(), user));
+        }
+    }
+}
+
+void UsersPool::createUser(std::string name, std::string passphrase, unsigned int balance) {
+    User user = User(std::move(name), std::move(passphrase), balance);
+
+    users.insert(std::make_pair(user.getPublicKey(), user));
+}
 
 void UsersPool::generateUsers() {
     StringGenerator stringGenerator = {};
@@ -18,9 +37,7 @@ void UsersPool::generateUsers() {
 
         name.append(std::to_string(i));
 
-        User user = User(name, stringGenerator.setLength(100).generate(), numberGenerator.setLength(100, 1000000).generate());
-
-        users.insert(std::make_pair(user.getPublicKey(), user));
+        createUser(name, stringGenerator.setLength(100).generate(), numberGenerator.setLength(100, 1000000).generate());
     }
 }
 

@@ -17,6 +17,8 @@ private:
     usersMap users;
 
 public:
+    UsersPool();
+    void createUser(std::string name, std::string passphrase, unsigned int balance = 0);
     void generateUsers();
     std::optional<User*> getUser(const std::string& publicKey);
     User* getRandomUser();

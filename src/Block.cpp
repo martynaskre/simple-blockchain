@@ -7,6 +7,8 @@
 #include "Hash.h"
 #include <sstream>
 #include <iostream>
+#include "Manager.h"
+#include <fstream>
 
 Block::Block(std::string previousHash, std::time_t timestamp, std::string version, int difficulty,
              const transactions& transactions) {
@@ -80,3 +82,34 @@ std::string Block::makeMerkleHash(const std::unordered_set<std::string>& transac
 
     return hash(transactionsString.str());
 }
+
+void Block::save(int sequence) {
+    if (!Manager::runningInDebug()) {
+        std::ofstream writer("blocks/" + std::to_string(sequence) + ".dat");
+
+        writer << getHash() << std::endl
+            << getPreviousHash() << std::endl
+            << getTimestamp() << std::endl
+            << getVersion() << std::endl
+            << getNonce() << std::endl
+            << getDifficultyTarget();
+
+        writer.close();
+    }
+}
+
+Block Block::fromFile(const std::string& filename) {
+    std::ifstream read(filename);
+
+    std::string identifier, previousHash, version, merkleHash;
+    std::time_t timestamp;
+    int nonce, difficultyTarget;
+
+    read >> identifier >> previousHash >> timestamp >> version >> nonce >> difficultyTarget;
+
+    return {identifier, previousHash, timestamp, version, merkleHash, nonce, difficultyTarget};
+}
+
+Block::Block(std::string identifier, std::string previousHash, std::time_t timestamp, std::string version,
+             std::string merkleHash, int nonce, int difficultyTarget): identifier(std::move(identifier)),
+             previousHash(std::move(previousHash)), timestamp(timestamp), version(std::move(version)), merkleHash(std::move(merkleHash)), nonce(nonce), difficultyTarget(difficultyTarget) {}

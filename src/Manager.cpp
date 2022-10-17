@@ -6,13 +6,20 @@
 #include <iostream>
 #include "Utils/Logger.h"
 #include "Block.h"
+#include <filesystem>
+
+bool Manager::isDebug = true;
 
 void Manager::bootstrap() {
+
     Logger::setState(false);
 
     initializeBlocks();
 
-    users.generateUsers();
+    if (runningInDebug()) {
+        users.generateUsers();
+    }
+
     transactions.generateTransactions([this]() -> User {
         return *users.getRandomUser();
     });
@@ -36,7 +43,10 @@ void Manager::bootstrap() {
 
         block.mine();
 
-        auto iterator = blocks.insert(std::pair(blocks.rbegin()->first + 1, block));
+        int sequence = blocks.rbegin()->first + 1;
+
+        block.save(sequence);
+        auto iterator = blocks.insert(std::pair(sequence, block));
 
         Logger::info("Block " + std::to_string(iterator.first->first) + " was mined");
 
@@ -63,15 +73,18 @@ void Manager::bootstrap() {
 }
 
 void Manager::initializeBlocks() {
-    Block genesis = Block("sw", 0, "1", 1, {});
-    genesis.mine();
+    for (const auto &entry: std::filesystem::directory_iterator("blocks")) {
+        auto block = Block::fromFile(entry.path());
 
-    blocks.insert(std::pair(1, genesis));
+        int sequence = (blocks.empty()) ? 1 : blocks.rbegin()->first + 1;
+
+        blocks.insert(std::make_pair(sequence, block));
+    }
 }
 
 void Manager::displayUserStatistics() {
     auto bounds = users.getUsers();
-    unsigned int min = 0, max = 0, total = 0;
+    unsigned int min = bounds.first->second.getBalance(), max = 0, total = 0;
     UsersPool::usersMap::iterator minIt, maxIt;
 
     for (auto i = bounds.first; i != bounds.second; i++) {
@@ -82,13 +95,21 @@ void Manager::displayUserStatistics() {
         if (user.getBalance() > max) {
             max = user.getBalance();
             maxIt = i;
-        } else if (user.getBalance() < min || min == 0) {
+        } else if (user.getBalance() < min) {
             min = user.getBalance();
             minIt = i;
         }
     }
 
+    if (max > total) {
+        std::cout << "xujne" << std::endl;
+    }
+
     Logger::info("Total coins in circulation: " + std::to_string(total));
     Logger::info(maxIt->second.getPublicKey() + " Richest user: " + std::to_string(max));
     Logger::info(minIt->second.getPublicKey() + " Poorest user: " + std::to_string(min));
+}
+
+bool Manager::runningInDebug() {
+    return isDebug;
 }

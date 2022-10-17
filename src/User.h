@@ -13,14 +13,18 @@ class User {
     std::string public_key;
     unsigned int balance;
 
+    void save();
+    User(unsigned int balance, std::string public_key, std::string name);
 public:
     User(std::string name, std::string passphrase, unsigned int balance);
     void setName(std::string newName);
-    void setBalance(int newBalance);
+    void setBalance(unsigned int newBalance);
 
     std::string getName();
     std::string getPublicKey();
     unsigned int getBalance() const;
+
+    static User fromFile(std::string filename);
 };
 
 

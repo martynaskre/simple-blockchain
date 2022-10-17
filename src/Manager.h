@@ -12,6 +12,7 @@
 #include <map>
 
 class Manager {
+    static bool isDebug;
     UsersPool users;
     TransactionsPool transactions;
     std::map<int, Block> blocks;
@@ -20,6 +21,8 @@ class Manager {
     void displayUserStatistics();
 public:
     void bootstrap();
+
+    static bool runningInDebug();
 };
 
 

@@ -14,3 +14,8 @@ include_directories(src)
 add_subdirectory(src)
 
 target_link_libraries(Blockchain Blockchain_src)
+
+set(CLI_SOURCE_FILES cli.cpp)
+add_executable(Blockchain_cli ${CLI_SOURCE_FILES})
+
+target_link_libraries(Blockchain_cli)
