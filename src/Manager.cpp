@@ -8,7 +8,7 @@
 #include "Block.h"
 #include <filesystem>
 
-bool Manager::isDebug = true;
+bool Manager::isDebug = false;
 
 void Manager::bootstrap() {
 

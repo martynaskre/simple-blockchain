@@ -3,9 +3,12 @@
 //
 
 #include <iostream>
+#include "Cli.h"
 
-int main() {
-    std::cout << "This is cli" << std::endl;
+int main(int argc, char *argv[]) {
+    Cli cli;
+
+    cli.run(argc, argv);
 
     return 0;
 }
