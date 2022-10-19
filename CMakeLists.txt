@@ -3,6 +3,12 @@ project(Blockchain)
 
 set(CMAKE_CXX_STANDARD 20)
 
+if(APPLE)
+    SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -Xpreprocessor -fopenmp")
+else()
+    SET(CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+endif()
+
 if (CMAKE_BUILD_TYPE MATCHES Release)
     set(CMAKE_CXX_FLAGS "-O2")
 endif()
