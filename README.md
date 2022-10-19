@@ -23,6 +23,7 @@ This implementation contains two executables:
 | --help                | Shows available commands         |
 | --wallet {public_key} | Returns information about wallet |
 | --block {sequence}    | Returns information about block  |
+
 <small>`--wallet` and `--block` commands can only return data from simulations that were run with debug mode disabled.</small>
 
 ## Running simulation
