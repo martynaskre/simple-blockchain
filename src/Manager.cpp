@@ -6,28 +6,20 @@
 #include <iostream>
 #include "Utils/Logger.h"
 #include "Block.h"
-#include <filesystem>
-
-bool Manager::isDebug = false;
 
 void Manager::bootstrap() {
-
-    Logger::setState(false);
-
-    initializeBlocks();
-
-    if (runningInDebug()) {
-        users.generateUsers();
-    }
+    users.generateUsers();
 
     transactions.generateTransactions([this]() -> User {
         return *users.getRandomUser();
     });
 
-    Logger::setState(true);
-
     displayUserStatistics();
+    performMining();
+    displayUserStatistics();
+}
 
+void Manager::performMining() {
     while (!transactions.isEmpty()) {
         auto range = transactions.getRange(0, (transactions.size() > 100) ? 100 : transactions.size());
 
@@ -39,16 +31,13 @@ void Manager::bootstrap() {
             trans.insert(transaction.getId());
         }
 
-        Block block = Block(blocks.rbegin()->second.getHash(), std::time(nullptr), "1", 1, trans);
+        Block block = Block(blocks.getLatestHash(), std::time(nullptr), "1", 1, trans);
 
         block.mine();
 
-        int sequence = blocks.rbegin()->first + 1;
+        auto newBlock = blocks.addBlock(block);
 
-        block.save(sequence);
-        auto iterator = blocks.insert(std::pair(sequence, block));
-
-        Logger::info("Block " + std::to_string(iterator.first->first) + " was mined");
+        Logger::info("Block " + std::to_string(newBlock.first) + " was mined");
 
         for (auto i = range.first; i != range.second; i++) {
             Transaction transaction = i->second;
@@ -67,18 +56,6 @@ void Manager::bootstrap() {
         }
 
         transactions.erase(range.first, range.second);
-    }
-
-    displayUserStatistics();
-}
-
-void Manager::initializeBlocks() {
-    for (const auto &entry: std::filesystem::directory_iterator("blocks")) {
-        auto block = Block::fromFile(entry.path());
-
-        int sequence = (blocks.empty()) ? 1 : blocks.rbegin()->first + 1;
-
-        blocks.insert(std::make_pair(sequence, block));
     }
 }
 
@@ -101,15 +78,7 @@ void Manager::displayUserStatistics() {
         }
     }
 
-    if (max > total) {
-        std::cout << "xujne" << std::endl;
-    }
-
     Logger::info("Total coins in circulation: " + std::to_string(total));
     Logger::info(maxIt->second.getPublicKey() + " Richest user: " + std::to_string(max));
     Logger::info(minIt->second.getPublicKey() + " Poorest user: " + std::to_string(min));
-}
-
-bool Manager::runningInDebug() {
-    return isDebug;
 }

@@ -7,6 +7,7 @@
 
 
 #include <string>
+#include <nlohmann/json.hpp>
 
 class User {
     std::string name;
@@ -24,7 +25,8 @@ public:
     std::string getPublicKey();
     unsigned int getBalance() const;
 
-    static User fromFile(std::string filename);
+    std::string to_json();
+    static User from_json(nlohmann::json& json);
 };
 
 

@@ -1,9 +1,9 @@
-#include "Manager.h"
+#include "Utils/Application.h"
 
-int main() {
-    Manager manager;
+int main(int argc, char *argv[]) {
+    Application application;
 
-    manager.bootstrap();
+    application.run(argc, argv);
 
     return 0;
 }

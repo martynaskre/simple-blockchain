@@ -8,12 +8,14 @@
 
 #include <unordered_map>
 #include "User.h"
+#include "rocksdb/db.h"
 
 class UsersPool {
 public:
     typedef std::unordered_map<std::string, User> usersMap;
 
 private:
+    rocksdb::DB* db;
     usersMap users;
 
 public:

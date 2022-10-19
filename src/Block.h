@@ -6,8 +6,9 @@
 #define BLOCKCHAIN_BLOCK_H
 
 
-#include "string"
-#include "unordered_set"
+#include <string>
+#include <unordered_set>
+#include <nlohmann/json.hpp>
 
 class Block {
     std::string identifier;
@@ -31,13 +32,15 @@ public:
     std::string getPreviousHash();
     std::time_t getTimestamp() const;
     std::string getVersion();
+    std::string getMerkleHash();
     int getNonce() const;
     int getDifficultyTarget() const;
 
     void mine();
     void save(int sequence);
 
-    static Block fromFile(const std::string& filename);
+    std::string to_json();
+    static Block from_json(nlohmann::json& json);
 };
 
 

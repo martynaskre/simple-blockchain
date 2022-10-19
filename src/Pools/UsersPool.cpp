@@ -7,13 +7,16 @@
 #include "UsersPool.h"
 #include "Utils/StringGenerator.h"
 #include "Utils/NumberGenerator.h"
+#include "Utils/Application.h"
 #include <fstream>
-#include <Manager.h>
 
 UsersPool::UsersPool() {
-    if (!Manager::runningInDebug()) {
-        for (const auto & entry : std::filesystem::directory_iterator("users")) {
-            auto user = User::fromFile(entry.path());
+    if (!Application::runningInDebug()) {
+        for (const auto &entry: std::filesystem::directory_iterator("users")) {
+            std::ifstream read(entry.path());
+            nlohmann::json data = nlohmann::json::parse(read);
+
+            auto user = User::from_json(data);
 
             users.insert(std::make_pair(user.getPublicKey(), user));
         }

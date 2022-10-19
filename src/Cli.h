@@ -7,9 +7,11 @@
 
 
 #include "Pools/UsersPool.h"
+#include "Pools/BlocksPool.h"
 
 class Cli {
     UsersPool users;
+    BlocksPool blocks;
     static const std::vector<std::pair<std::string, std::string>> commands;
 
     void printHelp();

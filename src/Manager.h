@@ -9,20 +9,18 @@
 #include "Pools/UsersPool.h"
 #include "Pools/TransactionsPool.h"
 #include "Block.h"
+#include "Pools/BlocksPool.h"
 #include <map>
 
 class Manager {
-    static bool isDebug;
     UsersPool users;
     TransactionsPool transactions;
-    std::map<int, Block> blocks;
+    BlocksPool blocks;
 
-    void initializeBlocks();
+    void performMining();
     void displayUserStatistics();
 public:
     void bootstrap();
-
-    static bool runningInDebug();
 };
 
 

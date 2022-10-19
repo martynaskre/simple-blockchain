@@ -5,9 +5,11 @@
 #include "User.h"
 #include "Hash.h"
 #include "Manager.h"
+#include "Utils/Application.h"
 #include <utility>
 #include <fstream>
 #include <algorithm>
+#include <nlohmann/json.hpp>
 
 User::User(std::string name, std::string passphrase, unsigned int balance) {
     this->name = std::move(name);
@@ -46,29 +48,31 @@ unsigned int User::getBalance() const {
 }
 
 void User::save() {
-    if (!Manager::runningInDebug()) {
+    if (!Application::runningInDebug()) {
         std::ofstream writer;
 
         writer.open("users/" + getPublicKey() + ".dat");
 
-        writer << getName() << std::endl << getBalance() << std::endl;
+        writer << to_json();
 
         writer.close();
     }
 }
 
-User User::fromFile(std::string filename) {
-    std::ifstream read(filename);
+User::User(unsigned int balance, std::string public_key, std::string name): public_key(std::move(public_key)), name(std::move(name)), balance(balance) {}
 
-    filename.erase(filename.begin(), filename.begin() + 6);
-    filename.erase(filename.end() - 4, filename.end());
-
-    std::string name;
-    unsigned int balance;
-
-    read >> name >> balance;
-
-    return {balance, filename, name};
+std::string User::to_json() {
+    return nlohmann::json{
+        {"public_key", getPublicKey()},
+        {"name", getName()},
+        {"balance", getBalance()}
+    }.dump();
 }
 
-User::User(unsigned int balance, std::string public_key, std::string name): public_key(std::move(public_key)), name(std::move(name)), balance(balance) {}
+User User::from_json(nlohmann::json &json) {
+    return {
+        json["balance"].get<unsigned int>(),
+        json["public_key"].get<std::string>(),
+        json["name"].get<std::string>()
+    };
+}

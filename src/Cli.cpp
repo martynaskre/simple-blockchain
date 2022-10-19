@@ -8,13 +8,17 @@
 #include <iostream>
 #include "Utils/Color.h"
 #include <iomanip>
+#include "Utils/Application.h"
 
 const std::vector<std::pair<std::string, std::string>> Cli::commands = {
         {"--help", "Shows available commands"},
-        {"--wallet {public_key}", "Returns information about wallet"}
+        {"--wallet {public_key}", "Returns information about wallet"},
+        {"--block {sequence}", "Returns information about block"}
 };
 
 void Cli::run(int argc, char **argv) {
+    Application::setDebug(false);
+
     if (argc <= 1) {
         std::cout << Color::RED << "No arguments were specified." << Color::RESET << std::endl << std::endl;
 
@@ -41,6 +45,29 @@ void Cli::run(int argc, char **argv) {
             std::cout << Color::CYAN << "Balance: " << Color::RESET << user.value()->getBalance() << std::endl;
         } else {
             std::cout << Color::RED << "Wallet does not exist." << Color::RESET << std::endl;
+        }
+
+        return;
+    }
+
+    if (args[0] == "--block" && argc == 3) {
+        int blockKey = stoi(args[1]);
+
+        auto block = blocks.getBlock(blockKey);
+
+        if (block.has_value()) {
+            std::time_t t = block.value()->getTimestamp();
+            auto tm = *std::localtime(&t);
+
+            std::cout << Color::CYAN << "Hash: " << Color::RESET << block.value()->getHash() << std::endl;
+            std::cout << Color::CYAN << "Previous hash: " << Color::RESET << block.value()->getPreviousHash() << std::endl;
+            std::cout << Color::CYAN << "Timestamp: " << Color::RESET << std::put_time(&tm, "%Y-%m-%dT%H:%M:%S.%z%Z") << std::endl;
+            std::cout << Color::CYAN << "Version: " << Color::RESET << block.value()->getVersion() << std::endl;
+            std::cout << Color::CYAN << "Merkle hash: " << Color::RESET << block.value()->getMerkleHash() << std::endl;
+            std::cout << Color::CYAN << "Nonce: " << Color::RESET << block.value()->getNonce() << std::endl;
+            std::cout << Color::CYAN << "Difficulty target: " << Color::RESET << block.value()->getDifficultyTarget() << std::endl;
+        } else {
+            std::cout << Color::RED << "Block does not exist." << Color::RESET << std::endl;
         }
 
         return;

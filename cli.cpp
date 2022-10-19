@@ -2,7 +2,6 @@
 // Created by Martynas Skrebė on 2022-10-17.
 //
 
-#include <iostream>
 #include "Cli.h"
 
 int main(int argc, char *argv[]) {
