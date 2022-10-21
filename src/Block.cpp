@@ -22,6 +22,23 @@ Block::Block(std::string previousHash, std::time_t timestamp, std::string versio
     this->identifier = makeIdentifier(nonce);
 }
 
+void Block::setHash(std::string hash) {
+    if (isMined) {
+        throw std::invalid_argument("Block is already mined");
+    }
+
+    identifier = std::move(hash);
+    isMined = true;
+}
+
+void Block::setNonce(int newNonce) {
+    if (isMined) {
+        throw std::invalid_argument("Block is already mined");
+    }
+
+    nonce = newNonce;
+}
+
 std::string Block::getHash() {
     return identifier;
 }
@@ -48,25 +65,6 @@ int Block::getNonce() const {
 
 int Block::getDifficultyTarget() const {
     return difficultyTarget;
-}
-
-void Block::mine() {
-    bool mined = false;
-
-    std::string guessedHash = makeIdentifier(nonce);
-    std::string difficulty = std::string(difficultyTarget, '0');
-
-    while (!mined) {
-        if (guessedHash.rfind(difficulty, 0) == 0) {
-            mined = true;
-
-            identifier = guessedHash;
-        } else {
-            nonce++;
-
-            guessedHash = makeIdentifier(nonce);
-        }
-    }
 }
 
 std::string Block::makeIdentifier(int newNonce) {

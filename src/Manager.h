@@ -18,6 +18,7 @@ class Manager {
     BlocksPool blocks;
 
     void performMining();
+    Block selectCandidate(std::vector<Block> candidates);
     void displayUserStatistics();
 public:
     void bootstrap();

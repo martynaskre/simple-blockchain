@@ -6,7 +6,10 @@
 #include <iostream>
 #include "Utils/Logger.h"
 #include "Block.h"
+#include <omp.h>
 
+// http://jakascorner.com/blog/2016/08/omp-cancel.html
+// https://medium.com/swlh/introduction-to-the-openmp-with-c-and-some-integrals-approximation-a7f03e9ebb65
 void Manager::bootstrap() {
     users.generateUsers();
 
@@ -31,9 +34,11 @@ void Manager::performMining() {
             trans.insert(transaction.getId());
         }
 
-        Block block = Block(blocks.getLatestHash(), std::time(nullptr), "1", 1, trans);
+        std::vector<Block> candidates = {
+                Block(blocks.getLatestHash(), std::time(nullptr), "1", 1, trans)
+        };
 
-        block.mine();
+        auto block = selectCandidate(candidates);
 
         auto newBlock = blocks.addBlock(block);
 
@@ -81,4 +86,44 @@ void Manager::displayUserStatistics() {
     Logger::info("Total coins in circulation: " + std::to_string(total));
     Logger::info(maxIt->second.getPublicKey() + " Richest user: " + std::to_string(max));
     Logger::info(minIt->second.getPublicKey() + " Poorest user: " + std::to_string(min));
+}
+
+Block Manager::selectCandidate(std::vector<Block> candidates) {
+    Block* selected;
+
+    #pragma omp parallel num_threads(4), shared(candidates, selected), default(none)
+    {
+        #pragma omp for
+        for (auto &block: candidates) {
+            bool mined = false;
+            int newNonce = block.getNonce();
+
+            std::string guessedHash = block.makeIdentifier(newNonce);
+            std::string difficulty = std::string(block.getDifficultyTarget(), '0');
+
+            while (!mined) {
+                if (guessedHash.rfind(difficulty, 0) == 0) {
+                    mined = true;
+
+                    block.setNonce(newNonce);
+                    block.setHash(guessedHash);
+
+                    #pragma omp critical
+                    {
+                        selected = &block;
+                    };
+
+                    #pragma omp cancel for
+                } else {
+                    newNonce++;
+
+                    guessedHash = block.makeIdentifier(newNonce);
+                }
+
+                #pragma omp cancellation point for
+            }
+        }
+    }
+
+    return *selected;
 }
