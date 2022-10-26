@@ -18,6 +18,7 @@ Block::Block(std::string previousHash, std::time_t timestamp, std::string versio
     this->merkleHash = makeMerkleHash(transactions);
     this->nonce = 0;
     this->difficultyTarget = difficulty;
+    this->transactionList = transactions;
 
     this->identifier = makeIdentifier(nonce);
 }
@@ -75,11 +76,11 @@ std::string Block::makeIdentifier(int newNonce) {
     return hash(hashBuilder.str());
 }
 
-std::string Block::makeMerkleHash(const std::unordered_set<std::string>& transactions) {
+std::string Block::makeMerkleHash(const std::vector<Transaction> &transactions) {
     std::stringstream transactionsString;
 
     for (auto transaction: transactions) {
-        transactionsString << transaction;
+        transactionsString << transaction.getId();
     }
 
     return hash(transactionsString.str());
@@ -121,4 +122,8 @@ Block Block::from_json(nlohmann::json &json) {
         json["nonce"].get<int>(),
         json["difficulty_target"].get<int>(),
     };
+}
+
+Block::transactions Block::getTransactions() {
+    return transactionList;
 }

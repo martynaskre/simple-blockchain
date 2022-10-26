@@ -26,7 +26,7 @@ void TransactionsPool::createTransaction(std::string sender, std::string receive
 void TransactionsPool::generateTransactions(const std::function<User()>& randomUser) {
     NumberGenerator numberGenerator = {};
 
-    int toGenerate = 10000;
+    int toGenerate = 500;
 
     for (int i = 0; i < toGenerate; i++) {
         User sender = randomUser();
@@ -65,10 +65,8 @@ bool TransactionsPool::isEmpty() {
     return transactions.empty();
 }
 
-TransactionsPool::transactionsMap::iterator TransactionsPool::erase(
-        TransactionsPool::transactionsMap::iterator from,
-        TransactionsPool::transactionsMap::iterator to) {
-    return transactions.erase(from, to);
+void TransactionsPool::erase(transactionsMap::key_type key) {
+    transactions.erase(key);
 }
 
 TransactionsPool::transactionsMap::size_type TransactionsPool::size() {

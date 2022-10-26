@@ -20,7 +20,7 @@ public:
     std::optional<Transaction> getTransaction(const std::string& id);
     std::pair<transactionsMap::iterator, transactionsMap::iterator> getRange(int from, int to);
     bool isEmpty();
-    transactionsMap::iterator erase(transactionsMap::iterator from, transactionsMap::iterator to);
+    void erase(transactionsMap::key_type key);
     transactionsMap::size_type size();
 };
 

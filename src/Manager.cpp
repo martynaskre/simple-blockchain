@@ -6,10 +6,9 @@
 #include <iostream>
 #include "Utils/Logger.h"
 #include "Block.h"
+#include "Utils/NumberGenerator.h"
 #include <omp.h>
 
-// http://jakascorner.com/blog/2016/08/omp-cancel.html
-// https://medium.com/swlh/introduction-to-the-openmp-with-c-and-some-integrals-approximation-a7f03e9ebb65
 void Manager::bootstrap() {
     users.generateUsers();
 
@@ -23,20 +22,26 @@ void Manager::bootstrap() {
 }
 
 void Manager::performMining() {
+    NumberGenerator numberGenerator{};
+
     while (!transactions.isEmpty()) {
-        auto range = transactions.getRange(0, (transactions.size() > 100) ? 100 : transactions.size());
+        std::vector<Block> candidates;
 
-        Block::transactions trans;
+        for (int i = 0; i < 5; i++) {
+            int maxTransactions = numberGenerator.setLength(0, 500).generate();
 
-        for (auto i = range.first; i != range.second; i++) {
-            auto transaction = i->second;
+            auto range = transactions.getRange(0, (transactions.size() > maxTransactions) ? maxTransactions : transactions.size());
 
-            trans.insert(transaction.getId());
+            Block::transactions trans;
+
+            for (auto x = range.first; x != range.second; x++) {
+                auto transaction = x->second;
+
+                trans.push_back(transaction);
+            }
+
+            candidates.emplace_back(blocks.getLatestHash(), std::time(nullptr), "1", 5, trans);
         }
-
-        std::vector<Block> candidates = {
-                Block(blocks.getLatestHash(), std::time(nullptr), "1", 1, trans)
-        };
 
         auto block = selectCandidate(candidates);
 
@@ -44,9 +49,7 @@ void Manager::performMining() {
 
         Logger::info("Block " + std::to_string(newBlock.first) + " was mined");
 
-        for (auto i = range.first; i != range.second; i++) {
-            Transaction transaction = i->second;
-
+        for (auto transaction: block.getTransactions()) {
             auto sender = users.getUser(transaction.getSender());
             auto receiver = users.getUser(transaction.getReceiver());
 
@@ -58,9 +61,9 @@ void Manager::performMining() {
 
                 Logger::info("Sending from: " + sender.value()->getPublicKey() + ", to: " + receiver.value()->getPublicKey() + ", amount: " + std::to_string(amount));
             }
-        }
 
-        transactions.erase(range.first, range.second);
+            transactions.erase(transaction.getId());
+        }
     }
 }
 
@@ -91,10 +94,12 @@ void Manager::displayUserStatistics() {
 Block Manager::selectCandidate(std::vector<Block> candidates) {
     Block* selected;
 
-    #pragma omp parallel num_threads(4), shared(candidates, selected), default(none)
+    #pragma omp parallel num_threads(candidates.size()), shared(candidates, selected), default(none)
     {
         #pragma omp for
         for (auto &block: candidates) {
+            int index = &block - &candidates[0];
+
             bool mined = false;
             int newNonce = block.getNonce();
 
@@ -108,8 +113,12 @@ Block Manager::selectCandidate(std::vector<Block> candidates) {
                     block.setNonce(newNonce);
                     block.setHash(guessedHash);
 
+                    #pragma omp cancellation point for
+
                     #pragma omp critical
                     {
+                        Logger::info("Block candidate " + std::to_string(index + 1) + " was selected");
+
                         selected = &block;
                     };
 
@@ -119,8 +128,6 @@ Block Manager::selectCandidate(std::vector<Block> candidates) {
 
                     guessedHash = block.makeIdentifier(newNonce);
                 }
-
-                #pragma omp cancellation point for
             }
         }
     }

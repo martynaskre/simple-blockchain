@@ -9,6 +9,7 @@
 #include <string>
 #include <unordered_set>
 #include <nlohmann/json.hpp>
+#include "Transaction.h"
 
 class Block {
     std::string identifier;
@@ -19,12 +20,13 @@ class Block {
     int nonce;
     int difficultyTarget;
     bool isMined = false;
+    std::vector<Transaction> transactionList;
 
-    std::string makeMerkleHash(const std::unordered_set<std::string>& transactions);
+    std::string makeMerkleHash(const std::vector<Transaction>& transactions);
 
     Block(std::string identifier, std::string previousHash, std::time_t timestamp, std::string version, std::string merkleHash, int nonce, int difficultyTarget);
 public:
-    typedef std::unordered_set<std::string> transactions;
+    typedef std::vector<Transaction> transactions;
 
     Block(std::string previousHash, std::time_t timestamp, std::string version, int difficulty, const transactions& transactions);
 
@@ -38,6 +40,7 @@ public:
     std::string getMerkleHash();
     int getNonce() const;
     int getDifficultyTarget() const;
+    transactions getTransactions();
 
     std::string makeIdentifier(int newNonce);
 

@@ -8,7 +8,7 @@
 #include <sstream>
 
 const int LENGTH = 64;
-const std::string ABC = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!@#$%&";
+const std::string ABC = "0123456789ABCDEF";
 
 Hash::Hash() = default;
 
