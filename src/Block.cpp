@@ -8,6 +8,7 @@
 #include <sstream>
 #include <iostream>
 #include "Utils/Application.h"
+#include "Utils/MerkleTree.h"
 #include <fstream>
 
 Block::Block(std::string previousHash, std::time_t timestamp, std::string version, int difficulty,
@@ -77,13 +78,15 @@ std::string Block::makeIdentifier(int newNonce) {
 }
 
 std::string Block::makeMerkleHash(const std::vector<Transaction> &transactions) {
-    std::stringstream transactionsString;
+    MerkleTree tree;
 
     for (auto transaction: transactions) {
-        transactionsString << transaction.getId();
+        tree.addLeaf(transaction.getId());
     }
 
-    return hash(transactionsString.str());
+    tree.generateMerkleTree();
+
+    return tree.getRoot().hash;
 }
 
 void Block::save(int sequence) {
