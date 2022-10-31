@@ -61,8 +61,7 @@ At startup, program generates 1000 users and 10000 transactions that are spread 
 After generation step, statistics about users are displayed. Statistics include total number of coins in circulation, richest and poorest users.
 
 ### Block mining
-After statistics were outputted, *one* block is generated. Once block is mined, all transactions that were assigned to the block are performed.
-
+After statistics were outputted, *five* candidate blocks are generated. Then, candidate blocks are mined in parallel and single block is returned from the parallel process that finished mining first. Mentioned process is repeated until transactions pool is empty.
 ### Statistics
 
 After all transactions were completed, statistics are displayed again in order to verify if number of coins in circulation did not change.

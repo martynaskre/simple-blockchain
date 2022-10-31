@@ -8,9 +8,24 @@
 #include "Utils/NumberGenerator.h"
 #include "User.h"
 #include "Utils/Logger.h"
+#include "Hash.h"
 
-void TransactionsPool::createTransaction(std::string sender, std::string receiver, unsigned int amount) {
-    Transaction transaction = Transaction(std::move(sender), std::move(receiver), std::time(nullptr), amount);
+void TransactionsPool::createTransaction(User& sender, User& receiver, unsigned int amount) {
+    if (sender.getBalance() < amount) {
+        Logger::error(sender.getPublicKey() + " tried to send " + std::to_string(amount) + " while having only " + std::to_string(sender.getBalance()));
+
+        return;
+    }
+
+    Transaction transaction = Transaction(sender.getPublicKey(), receiver.getPublicKey(), std::time(nullptr), amount);
+
+    std::string hashCheck = hash(sender.getPublicKey() + receiver.getPublicKey() + std::to_string(transaction.getTimestamp()) + std::to_string(transaction.getAmount()));
+
+    if (transaction.getId() != hashCheck) {
+        Logger::error("Invalid transaction hash");
+
+        return;
+    }
 
     if (transactions.contains(transaction.getId())) {
         Logger::error("Integrity fault, transaction with same ID already exists " + transaction.getId());
@@ -38,7 +53,7 @@ void TransactionsPool::generateTransactions(const std::function<User()>& randomU
             }
         }
 
-        createTransaction(sender.getPublicKey(), receiver.getPublicKey(), numberGenerator.setLength(1, 1000).generate());
+        createTransaction(sender, receiver, numberGenerator.setLength(1, 1000).generate());
     }
 }
 

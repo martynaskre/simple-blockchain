@@ -8,7 +8,6 @@
 #include <iostream>
 #include "Utils/Color.h"
 #include <iomanip>
-#include "Utils/Application.h"
 
 const std::vector<std::pair<std::string, std::string>> Cli::commands = {
         {"--help", "Shows available commands"},
@@ -17,8 +16,6 @@ const std::vector<std::pair<std::string, std::string>> Cli::commands = {
 };
 
 void Cli::run(int argc, char **argv) {
-    Application::setDebug(false);
-
     if (argc <= 1) {
         std::cout << Color::RED << "No arguments were specified." << Color::RESET << std::endl << std::endl;
 

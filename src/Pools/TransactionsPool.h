@@ -15,7 +15,7 @@ class TransactionsPool {
 
     transactionsMap transactions;
 public:
-    void createTransaction(std::string sender, std::string receiver, unsigned int amount);
+    void createTransaction(User& sender, User& receiver, unsigned int amount);
     void generateTransactions(const std::function<User()>& randomUser);
     std::optional<Transaction> getTransaction(const std::string& id);
     std::pair<transactionsMap::iterator, transactionsMap::iterator> getRange(int from, int to);

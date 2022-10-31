@@ -38,3 +38,7 @@ std::string Transaction::getReceiver() {
 unsigned int Transaction::getAmount() const {
     return amount;
 }
+
+std::time_t Transaction::getTimestamp() const {
+    return timestamp;
+}

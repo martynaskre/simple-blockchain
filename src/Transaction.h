@@ -23,6 +23,7 @@ public:
     std::string getSender();
     std::string getReceiver();
     unsigned int getAmount() const;
+    std::time_t getTimestamp() const;
 };
 
 
