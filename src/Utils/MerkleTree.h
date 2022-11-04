@@ -9,29 +9,22 @@
 #include <string>
 #include <map>
 #include <vector>
-
-struct Node {
-    std::string hash;
-    Node* parent;
-    Node* left;
-    Node* right;
-
-    explicit Node(std::string hash);
-};
+#include "bitcoin/bitcoin.hpp"
 
 class MerkleTree {
-    Node *root;
-    std::map<std::string, Node*> leafs;
+    bc::hash_digest root{};
+    std::vector<std::string> leafs;
 
-    Node* buildMerkelTree(std::vector<Node*>& tree);
+    bc::hash_digest buildMerkelTree(bc::hash_list& merkle);
+    bc::hash_digest stringToHashDigest(const std::string& val);
 public:
-    MerkleTree();
+    MerkleTree() = default;
     explicit MerkleTree(const std::vector<std::string>& values);
 
     void addLeaf(const std::string& val);
     void generateMerkleTree();
 
-    Node getRoot();
+    std::string getRoot();
 };
 
 

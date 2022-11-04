@@ -6,85 +6,71 @@
 #include <utility>
 #include "Hash.h"
 
-Node::Node(std::string hash): hash(std::move(hash)), parent(nullptr), left(nullptr), right(nullptr) {}
-
-MerkleTree::MerkleTree(): root(nullptr) {}
-
-MerkleTree::MerkleTree(const std::vector<std::string>& values): root(nullptr) {
-    for (auto &value: values) {
-        addLeaf(value);
-    }
+MerkleTree::MerkleTree(const std::vector<std::string>& values) {
+    leafs = values;
 
     generateMerkleTree();
 }
 
 void MerkleTree::addLeaf(const std::string& val) {
-    leafs[val] = new Node(hash(val));
+    leafs.push_back(val);
 }
 
 void MerkleTree::generateMerkleTree() {
-    std::vector<Node*> tree;
+    bc::hash_list tree;
 
-    for (auto &el: this->leafs) {
-        tree.push_back(el.second);
+    for (auto &leaf: this->leafs) {
+        tree.push_back(stringToHashDigest(leaf));
     }
 
     this->root = buildMerkelTree(tree);
 }
 
-Node *MerkleTree::buildMerkelTree(std::vector<Node*>& tree) {
-    if (tree.empty()) {
-        return nullptr;
+bc::hash_digest MerkleTree::buildMerkelTree(libbitcoin::hash_list &merkle) {
+    if (merkle.empty()) {
+        return bc::null_hash;
+    } else if (merkle.size() == 1) {
+        return merkle[0];
     }
 
-    if (tree.size() == 1) {
-        return tree.at(0);
+    while (merkle.size() > 1) {
+        if (merkle.size() % 2 != 0) {
+            merkle.push_back(merkle.back());
+        }
+
+        assert(merkle.size() % 2 == 0);
+
+        bc::hash_list newMerkle;
+
+        for (auto it = merkle.begin(); it != merkle.end(); it += 2) {
+            bc::data_chunk concat_data(bc::hash_size * 2);
+
+            auto concat = bc::serializer<decltype(concat_data.begin())>(concat_data.begin());
+
+            concat.write_hash(*it);
+            concat.write_hash(*(it + 1));
+
+            bc::hash_digest newRoot = stringToHashDigest(hash(bc::encode_base16(concat_data)));
+
+            newMerkle.push_back(newRoot);
+        }
+
+        merkle = newMerkle;
     }
 
-    if (tree.size() % 2 != 0) {
-        tree.push_back(tree.back());
-    }
-
-    std::vector<Node*> merkleLeaf;
-
-    for (auto it = tree.begin(); it != tree.end(); it += 2) {
-        auto leftNode = **it;
-        auto rightNode = **(it + 1);
-
-        Node* node = new Node(hash(leftNode.hash + rightNode.hash));
-
-        node->left = &leftNode;
-        node->right = &rightNode;
-
-        leftNode.parent = node;
-        rightNode.parent = node;
-
-        merkleLeaf.push_back(node);
-    }
-
-//    std::vector<Node*> topLine;
-//
-//    std::string concatedHashes;
-//    std::string newHash;
-//    Node *tNode;
-//    for (auto it = line.begin(); it != line.end(); it += 2)
-//    {
-//        concatedHashes = (**it).hash + (**(it + 1)).hash;
-//        newHash = hash(concatedHashes);
-//        tNode = new Node(newHash);
-//
-//        tNode->left = *it;
-//        tNode->right = *(it + 1);
-//
-//        (**it).parent = tNode;
-//        (**(it + 1)).parent = tNode;
-//
-//        topLine.push_back(tNode);
-//    }
-
-    return this->buildMerkelTree(merkleLeaf);
+    return merkle[0];
 }
 
-Node MerkleTree::getRoot() {
-    return *root;
+std::string MerkleTree::getRoot() {
+    return bc::encode_hash(root);
+}
+
+bc::hash_digest MerkleTree::stringToHashDigest(const std::string& val) {
+    bc::hash_digest newRoot;
+
+    if (!bc::decode_hash(newRoot, val)) {
+        throw std::invalid_argument("Invalid hash provided");
+    }
+
+    return newRoot;
 }

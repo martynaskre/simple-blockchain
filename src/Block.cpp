@@ -86,7 +86,7 @@ std::string Block::makeMerkleHash(const std::vector<Transaction> &transactions) 
 
     tree.generateMerkleTree();
 
-    return tree.getRoot().hash;
+    return tree.getRoot();
 }
 
 void Block::save(int sequence) {

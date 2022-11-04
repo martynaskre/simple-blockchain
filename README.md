@@ -65,3 +65,7 @@ After statistics were outputted, *five* candidate blocks are generated. Then, ca
 ### Statistics
 
 After all transactions were completed, statistics are displayed again in order to verify if number of coins in circulation did not change.
+
+## Integration of Libbitcoin merkle tree
+
+In order to use `Libbitcoin` Merkle tree generation, a whole rewrite of `src/Utils/MerkleTree` class was needed. Refactor included complete rewrite of internal class logic, but outside class usage remained almost the same.
